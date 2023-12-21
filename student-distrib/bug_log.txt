@@ -1,0 +1,225 @@
+___________________________________________________________Checkpoint 1_________________________________________________________________
+1. Error - Too deeply nested:
+
+    -Symptom: When we were compiling our code, we recieved the error that files were too deeply nested and in an infinite loop of compiling.
+
+    -Difficulty: 5 mins to find and solve.
+
+    -Resolution: This was caused by having the same include statements in multiple files. We fixed this by writing ifndef at the top of the .h files and endif at the bottom.
+
+
+2. Keyboard typing was not working:
+
+    -Symptom: Whenever the keyboard function was tested, nothing would type on the kernel.
+
+    -Difficulty: 2 hours to find and solve.
+
+    -Resolution: The master and slave mask were never initailized. The two masks were moved inside of the init function
+
+
+3. False Seg Fault:
+
+    -Symptom: Whenever we ran gdb and hit r, we would get a seg fault in boot.S in line 30
+
+    -Difficulty: 1 hour to find and resolve.
+
+    -Resolution: On piazza, someone else had the same issue and we found that run can not be used on gdb for this mp.
+
+
+4. Test_debug continously crashes:
+
+    -Symptom: whenever keyboard was tested, the testing environment would crash after a few seconds.
+
+    -Difficulty: 20 mins to find and resolve
+
+    -Resolution: Initially used inb for initially the masks
+
+
+5. Boot looping when testing paging:
+    - Symptom: whenever we ran our code for paging, the system would boot loop
+
+    -Difficulty: 1 hour to find and resolve. 
+
+    - Resolution: Instead of sending in the address of the page directory array to the     
+      function load_page_directory as an input, we used "p_dir" directly in paging_asm.S, but paging_asm.S 
+      did not have access to p_dir (the page directory array) that was declared in paging_helpers.h 
+
+6. Paging not working alongside keyboard and rtc interrupts:
+    - Symptom: Our keyboard_init() and rtc_init() functions would only work when we commented out our call 
+      to page_init() in kernel.c. 
+
+    - Difficulty: 30 mins to find and resolve.
+
+    - Resolution: Used the wrong address for page table entries. Used full 20 bit address for the page    
+      table instead of just 8 bits (i.e. index in page table)
+___________________________________________________________Checkpoint 2_________________________________________________________________
+1. File contents not priniting:
+   - Symptom: When we ran the code to print out the fish file. Nothing showed up on the screen.
+
+    - Difficulty: 1 hour to find and resolve.
+
+    - Resolution: The offsets into inode were wrong. Memory from outside the file system was being accessed. This did not seg fault
+    because it was a valid memory address with no data inside the address.
+
+2. A lot page fault exceptions:
+    - Symptom: When the code was run, after a few characters were printed a page fault exception would occur.
+
+    - Difficulty: 30 mins to find and resolve. Lots of gdbing
+
+    - Resolution: The solutions to the page fault exceptions was to make our test buffer bigger so that we don't overwrite other memory values, and check where and fix where our loops were infinitly looping.
+
+3. executables skipping characters:
+    - Symptom: When we looked at the text editor and compared our characters output, we saw a few characters missing.
+
+    - Difficulty: 1 hour to solve and find. 
+
+    - Resolution: We realised this was due to the nulls in the text editor. The solution was to create a new buffer that only contains the characters and no nulls.
+
+4. Entire file not printing:
+    - Symptom: When we integrated with the keyboard program, our fish did not entirely print. 
+
+    - Difficulty: 30 mins to solve and find
+
+    - Resolution: We only sent terminal write 128 bytes and then called terminal write again with an offset so that the printing resumes at the character position. This issue occured because the buffer became full and can not print more characters.
+
+5.New line in the middle of file output:
+    - Symptom: The fish we printed ate too much and had a new line between its top half and bottom half.
+
+    -Difficulty: 15 mins to solve and find
+
+    -Resolution: <3 Set a file flag to indicate that a file is being written to the terminal. The flag skipped the new line.
+
+6. Rtc was not passing the test case of printing our output at different frequencies. Only printed at the frequency of 2 
+    -Symptom: When charcters were priniting on the screen at a constant slow speed even when we harcoded the frequency to be 256 Hz
+    
+    - Difficulty : 6 hours to fix 
+
+    - Resolution: Implemented Virtualization which allowed for a flexibility of the frequency values to be set 
+
+7. Printed spaces everytime we typed in a letter 
+    - Symptom: Evertime an input to the keyboard was made, a space was added with it. No spaces only when we spammed the keyboard 
+
+    - Difficulty: 5 hours
+
+    -  Resolution: Added function to return a -1 value which indicates that the letter was released - a released scancode value.  
+
+
+
+___________________________________________________________Checkpoint 3_________________________________________________________________
+
+1. Cursor would be located on the line below the <ECE391OS>
+    - Symptom: Evertime we run our program, our cursor would be located on the line below the line it should be on. (should be located right next to <ECE391OS>)
+
+    - Difficulty: 30 mins
+
+    -  Resolution: We created a flag to indicate to the terminal that a system call is running and it should not print the new line.  
+
+2. Page faulting when all the 6 p_id's are used
+
+    - Symptom: Once our p_id reached its limit of 6, we would page fault
+
+    - Difficulty: 10 mins
+
+    -  Resolution: we checked the p_id at the beginning and did not increment p_id until it was confirmed that the p_id was valid
+
+3. Page faulting an invalid file name was typed
+
+    - Symptom: when we typed in an invalid name, it would automatically page fault when we hit enter.
+
+    - Difficulty: 30 min
+
+    -  Resolution: we moved our check for a valid file name to the top of execute so that was the first conditon that was checked and after that the line "no such command"
+
+4. Issues with our terminal read
+
+    - Symptom: when we tested the hello executable and ran the prompt, the input was not being displayed so we noticved that our buffer wasn't being properly filled correctly
+
+    - Difficulty: 15 min
+
+    -  Resolution: we changed the for loop we implemented for filling the buffer in terminal read to implementing sting copy
+
+5.  General Protection Error
+
+    - Symptom: We were getting a general protection error due to our idt bounds. We were never including 128 which takes care of our system calls
+
+    - Difficulty: 2 hrs
+
+    -  Resolution: we included 128 in our bounds for idt to include our system calls
+
+
+___________________________________________________________Checkpoint 4_________________________________________________________________
+
+1. Page Faulting after halt
+    - Symptom: Whenever our user programs ended or reached the return statement (calling halt), the program would print page fault exception.
+
+    - Difficulty: 2 days
+
+    -  Resolution: We squashed the commit by calling our sys halt in the exception handling and converted our inline assembly to an asm file.
+2. Nothing prints after executing create    
+    -Symptom: Whenever cat ___ was typed the file would not print
+    -Difficulty: 1 day
+    -Resolution: Before going into read_data, we implemented an if conditon check to see if the entire file had been read. We also added a check to see if the number of bytes to be read would exceed the length of the file. If this happened, nbytes was modified to be difference between the length of bytes in the file and bytes to be read. 
+
+3. File position not updated correctly 
+    - Symptom: The "cat" command would continously loop and "fish" would not properly display frame0.txt and frame1.txt 
+    - Difficulty: 2 days 
+    - Resolution: Initially, we had an inode_to_offset array, which we would index into with the indoe number to get the currrent offset into a file of that 
+    inode number. Instead of using the array to keep track of the offset, we used our file_position field in our fd struct to keep track of the current offset 
+    into the file in order for the file position of the file for the given pcb to get correctly updated. We also originally set our file_position to be the 
+    beginning of the file once we've read till the end of the file in order to read from the file again, but then set it to the end of the file once we 
+    realized the file would have to be closed and opened again in order to read the file again. 
+
+4.  read_dentry_by_index function not working as expected 
+    - Symptom: Calls to read_dentry_by_index with a dentry pointer would not initialize a dentry 
+    - Difficulty: 1 day
+    - Resolution: In our original read_dentry_by_index, we were comparing filenames rather than indices, as we originally thought we could index into 
+      direntries using the inode number. We changed the read_dentry_by_index to loop through all the direntries till it finds a dentry with the given inode 
+      number, at which point we initialize the given dentry. We then created a separate function called read_dentry_by_index_d, which is called by 
+      directory_read, which will send in dirCounter, a variable we used to keep track of which file read_directory will write the name of into the buffer.    
+      The function read_dentry_by_index_d will then loop through all the entries in the direntries, as it did before, comparing filenames to find the correct 
+      dentry.  
+
+5. Fish not executing as expected(vidmap)
+    - Symptom: Page fault in vidmap
+    - Difficulty: 2 hrs 
+    - Resolution: Maping our page directory at a wrong index (correct index in our case 34)
+
+6. Fish not executing as expexted(vidmap)
+    - Symptom: Page fault in vidmap 
+    - Difficulty: 1 hr
+    - Resolution: Created a sepreate page table for vid map especially 
+___________________________________________________________Checkpoint 5_________________________________________________________________
+
+1. Program gets stuck in terminal read when keyboard buffer is filled
+    - Symptom:  When the buffer is filled in  shell and hello programs, the program would get stuck in the while loop that we have present in terminal read since our enter flag was not being set accordingly
+
+    - Difficulty:  1hr
+
+    -  Resolution:  We gdbed in our keyboard file and found that our program was getting stuck in our terminal read while loop due to the enter flag condition. 
+                We then made a flag that checks if the keyboard buffer is full. If so, then we change the status of our enter flag such that it will break out of               the while loop it was originally stuck  in.
+
+
+2. Fish showing up in every terminal
+
+    - Symptom: When  we ran fish in one terminal and decided to switch to another, we found that fish was still showing up in other terminals (fish was not    run).
+
+    - Difficulty:  1.5 hr
+
+    -  Resolution:  We found that video memory had to be remapped. We took the vidmap memory stored at 4kb and mapped it to the physical memory page allocated for the terminal running fish. This prevented fish from running in a terminal that is was not called from.
+
+
+3.  1/3 terminals bootlooping
+    - Symptom:  When we switched from terminal 1 to terminal 2, to initialize terminal 2, terminal 2 would bootloop immediately. This happened when scheduling was implemented.
+
+    - Difficulty: 1 day
+
+    -  Resolution: We set checks in our scheduling function that checked whether or not esp and ebp were zero. if any of them were zero, then we exited from the scheduling function. We found ebp and esp were zero by gdbing and veiwing the stack.
+
+4.	Fish running on all 3 terminals
+-	Our vidmap was not mapped correctly 
+-	Solved this by checking if the scheduled is equal to what is currently being displayed and mapped it to the backgroung or 0xB8 accordingly 
+
+5.	Pingpong and counter would not work simultaneously together
+-	Active_pcb_pid not (our variable to determine which termine is currently been displayed) being updated correctly and pointer to the current pcb was not getting updated so we fixed this in our scheduling 
+
+
